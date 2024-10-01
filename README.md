@@ -1,1 +1,1 @@
-# Local_RAG
+# SQLite-FAISS-RAG
