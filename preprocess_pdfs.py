@@ -8,30 +8,30 @@ from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 import config_SQLite_FAISS_RAG as config
 
-# 使用配置文件中的参数
+# Use parameters from the configuration file
 input_folder = config.input_folder
 output_folder = config.output_folder
 chunk_size = config.chunk_size
 chunk_overlap = config.chunk_overlap
 
-# 确保输出文件夹存在
+# Ensure the output folder exists
 if not os.path.exists(output_folder):
     os.makedirs(output_folder)
 
-# 数据清洗函数
+# Data cleaning function
 def clean_text(text):
-    # 1. 合并由于换行和连字符分隔的单词
+    # 1. Merge words separated by line breaks and hyphens
     text = re.sub(r"(\w)-\n(\w)", r"\1\2", text)
-    # 2. 将换行符替换为空格
+    # 2. Replace line breaks with spaces
     text = text.replace('\n', ' ')
-    # 3. 删除引用（如 [1]、(1) 等）
+    # 3. Remove citations (e.g., [1], (1), etc.)
     text = re.sub(r'\[\d+\]', '', text)
     text = re.sub(r'\(\d+\)', '', text)
-    # 4. 删除多余的空白字符
+    # 4. Remove extra whitespace characters
     text = re.sub(r'\s+', ' ', text)
     return text.strip()
 
-# 删除 "References" 之后的内容
+# Remove content after "References"
 def remove_references(text):
     reference_keywords = ['references', 'bibliography']
     pattern = re.compile(r'|'.join(reference_keywords), re.IGNORECASE)
@@ -40,24 +40,24 @@ def remove_references(text):
         text = text[:match.start()]
     return text
 
-# 提取标题和小标题
+# Extract main title and section titles
 def extract_titles(raw_text):
     main_title = raw_text.split("\n", 1)[0].strip()
     section_pattern = re.compile(r"^(?:\d+\.?|\d+\.\d+|\b[A-Z]+\b)\s+[A-Za-z]", re.MULTILINE)
     section_titles = section_pattern.findall(raw_text)
     return main_title, section_titles
 
-# 定义文本分割器
+# Define the text splitter
 text_splitter = RecursiveCharacterTextSplitter(
     chunk_size=chunk_size,
     chunk_overlap=chunk_overlap,
     length_function=len
 )
 
-# 获取文件夹中的所有 PDF 文件
+# Get all PDF files in the folder
 pdf_files = [f for f in os.listdir(input_folder) if f.endswith('.pdf')]
 
-# 使用 tqdm 显示进度条
+# Display progress bar using tqdm
 for pdf_file in tqdm(pdf_files, desc="Processing PDFs"):
     file_path = os.path.join(input_folder, pdf_file)
     loader_py = PyPDFLoader(file_path)
