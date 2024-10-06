@@ -9,6 +9,8 @@ This workflow consists of the following steps:
 2. **Build Index**: Generate embeddings for text chunks, build a FAISS index, and store data in a SQLite database.
 3. **Search Index**: Retrieve the most similar text chunks based on a query.
 
+![SQLite-FAISS-RAG-Structure](SQLite-FAISS-RAG-Structure.png)
+
 ## Directory Structure
 
 ```
